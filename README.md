@@ -3,7 +3,7 @@
 一款專為前端初學者設計的互動式網頁遊戲！化身為壽司大廚，透過可愛的輸送帶與壽司，輕鬆學習並掌握 CSS Flexbox 的核心排版技巧。
 
 ## 🎮 立即遊玩
-[👉 點擊這裡開始挑戰 Flexbox Sushi！](https://deng131130.github.io/flexbox-sushi/)
+[👉 點擊這裡開始挑戰 Flexbox Sushi！](https://silver131-dev.github.io/flexbox-sushi/)
 
 ## ✨ 遊戲特色
 * **視覺化學習：** 即時看見 `justify-content`、`align-items` 與 `flex-direction` 的排版變化。
