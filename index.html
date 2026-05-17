@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Flexbox Sushi 🍣 | 輕鬆學會 CSS Flexbox 網頁排版</title>
+    <meta name="description" content="Flexbox Sushi 是一款免費的互動式網頁遊戲，透過可愛的壽司與輸送帶，帶你輕鬆學習 CSS Flexbox 的 justify-content、align-items 與 flex-direction 等排版技巧。">
+    <meta name="keywords" content="Flexbox, CSS 教學, 網頁前端, Flexbox Sushi, Flexbox 遊戲, 程式教學, 前端開發">
+    <meta name="author" content="鄧小傳">
+    <meta name="robots" content="index, follow"> <meta property="og:type" content="website">
+    <meta property="og:title" content="Flexbox Sushi 🍣 | 輕鬆學會 CSS Flexbox">
+    <meta property="og:description" content="化身壽司師傅，透過可愛的互動遊戲，掌握網頁前端必備的 Flexbox 排版魔法！">
+    <meta property="og:image" content="img/Flexbox Sushi.jpg"> 
+    <meta property="og:url" content=" https://github.com/silver131-dev/flexbox-sushi">
+    
+    <meta name="twitter:card" content="summary_large_image">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Flexbox Sushi",
+      "applicationCategory": "EducationalGame",
+      "educationalUse": "Interactive Learning",
+      "description": "Flexbox Sushi 是一款專為前端初學者設計的教育類網頁遊戲。玩家將扮演壽司店師傅，透過撰寫 CSS Flexbox 語法（包含 justify-content, align-items, flex-direction 等），將各種壽司正確放置到盤子上，藉此在視覺化的環境中掌握網頁排版原理。",
+      "author": {
+        "@type": "Person",
+        "name": "鄧小傳"
+      },
+      "inLanguage": "zh-TW",
+      "keywords": "CSS, Flexbox, Web Development, Educational Game, Tutorial",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TWD"
+      }
+    }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="start-screen">
+        <div id="start-content">
+            <h1>Flexbox Sushi 🍣</h1>
+            
+            <p>透過可愛的壽司互動遊戲，掌握網頁前端必備的 Flexbox 排版魔法！</p>
+            
+            <div id="bouncing-sushi-grid"></div>
+
+            <button id="start-game-btn">開始遊戲</button>
+        </div>
+    </div>
+    
+    
+    <div id="game-layout" class="hidden">
+    <section id="sidebar">
+        <header>
+            <h1>Flexbox Sushi 🍣</h1>
+            <div id="level-selector"></div>
+        </header>
+
+        <div id="instructions">
+            </div>
+
+        <div class="hint-section">
+            <button id="hint-btn">💡 顯示提示</button>
+           <div id="hint-display"></div>
+        </div>
+
+        <div id="editor">
+            <div class="code-line">#sushi-board {</div>
+            <div class="code-line indent">display: flex;</div>
+            <textarea id="css-input" rows="3" autofocus></textarea>
+            <div class="code-line">}</div>
+            <button id="next-btn" disabled>下一關</button>
+        </div>
+    </section>
+
+    <section id="game-view">
+        <div class="conveyor-belt">
+            <div id="plates-container">
+                <div class="plate plate-pink"></div>
+            </div>
+            
+            <div id="sushi-container">
+                <div class="sushi sushi-salmon"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+/* 基礎設定 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { /*display: flex;*/ height: 100vh; font-family: sans-serif; background-color: #2c3e50; color: #ecf0f1; }
+
+/* 左側面板 */
+#sidebar { width: 40%; background-color: #34495e; padding: 2rem; display: flex; flex-direction: column; }
+/* --- 修改 header 樣式，讓標題與關卡選擇器分行 --- */
+header { 
+    display: flex; 
+    flex-direction: column; /* 設為垂直排列 */
+    align-items: flex-start; /* 讓內容靠左對齊 */
+    margin-bottom: 2rem; 
+    gap: 15px; /* 在標題和選擇器之間增加一點間距 */
+}
+#instructions { margin-bottom: 2rem; line-height: 1.6; }
+#instructions code { background: #2c3e50; padding: 2px 6px; border-radius: 4px; color: #e74c3c; }
+
+/* --- 新增：滑動關卡選擇器樣式 --- */
+#level-selector {
+    display: flex;
+    gap: 8px;
+    max-width: 350px; /* 限制寬度以觸發橫向滑動 */
+    overflow-x: auto; /* 超出範圍時可橫向滑動 */
+    padding-bottom: 8px; /* 留空間給卷軸 */
+    /* 自訂卷軸樣式 (讓它看起來比較精緻) */
+    scrollbar-width: thin;
+    scrollbar-color: #95a5a6 transparent;
+}
+
+#level-selector::-webkit-scrollbar {
+    height: 6px;
+}
+#level-selector::-webkit-scrollbar-thumb {
+    background-color: #95a5a6;
+    border-radius: 10px;
+}
+
+/* 關卡圓圈按鈕 */
+.level-dot {
+    flex-shrink: 0; /* 防止按鈕被擠壓變形 */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #95a5a6;
+    background: transparent;
+    color: #ecf0f1;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.level-dot:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+/* 目前所在關卡的亮起狀態 */
+.level-dot.active {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+}
+
+/* 編輯器 */
+#editor { background: #1a252f; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 1.1rem; }
+.code-line { margin: 0.5rem 0; color: #95a5a6; }
+.indent { padding-left: 2rem; color: #3498db; }
+#css-input { width: 100%; background: transparent; border: none; color: #ecf0f1; font-family: monospace; font-size: 1.1rem; padding-left: 2rem; outline: none; resize: none; line-height: 1.5; }
+#next-btn { margin-top: 1rem; padding: 0.8rem 1.5rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: bold; width: 100%; transition: 0.3s; }
+#next-btn:disabled { background: #7f8c8d; cursor: not-allowed; opacity: 0.5; }
+
+/* 右側遊戲畫面 */
+#game-view { width: 60%; background-color: #ecf0f1; position: relative; display: flex; justify-content: center; align-items: center; }
+.conveyor-belt { width: 80%; height: 60%; position: relative; background-color: #bdc3c7; border-radius: 20px; border: 8px solid #95a5a6; }
+
+/* 盤子與壽司的容器：必須絕對重疊 */
+#plates-container, #sushi-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; /* 遊戲核心：預設為 Flexbox */
+    padding: 20px;
+}
+
+
+/* 視覺佔位符 (之後換成你的圖片) */
+/*.plate { width: 80px; height: 80px; border-radius: 50%; background: rgba(231, 76, 60, 0.3); border: 2px dashed #e74c3c; }
+.sushi { width: 80px; height: 80px; font-size: 60px; display: flex; justify-content: center; align-items: center; }
+
+/* 基礎設定：讓圖片自動縮放符合容器大小，調整統一容器與對齊基準線 */
+.plate, .sushi {
+    width: 150px;       /* 加大容器寬度，讓壽司跟盤子有更多空間 */
+    height: 130px;       /* 調整高度比例 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    
+    /* 關鍵優化：讓所有圖片都「對齊底部」！這樣高低比例不同的壽司就會踩在同一條線上 */
+    background-position: bottom center;
+}
+/* 確保壽司會疊在盤子的上方 */
+.sushi {
+    z-index: 2;
+    
+    /* 關鍵優化：將縮放的基準點設定在「底部中心」 */
+    transform-origin: bottom center; 
+    
+    /* 縮小 75% 後，統一往上(負數)平移 15px 放入盤中 */
+    /* 數值 (-15px) 可以根據你希望壽司坐在盤子上的深淺度做微調 */
+    transform: scale(0.55) translateY(-50px);
+    /* 加入平滑過渡效果，讓調整 justify-content 時壽司移動更自然 */
+    transition: 0.4s ease-in-out;
+    /* 👇 新增：加入無限循環的脈動動畫！ 1.5s 一次，手感更溫和 👇 */
+    animation: pulseSushi 1.5s infinite ease-in-out;
+}
+
+/* --- 在檔案最下方加入提示區域的樣式 --- */
+.hint-section { 
+    margin-bottom: 2rem; 
+}
+
+#hint-btn {
+    background: transparent;
+    color: #f1c40f;
+    border: 1px solid #f1c40f;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+#hint-btn:hover {
+    background: #f1c40f;
+    color: #2c3e50;
+}
+
+#hint-display {
+    margin-top: 0.8rem;
+    padding: 0.8rem;
+    background: rgba(241, 196, 15, 0.1);
+    border-left: 4px solid #f1c40f;
+    color: #ecf0f1;
+    font-size: 0.95rem;
+    display: none; /* 預設隱藏 */
+}
+
+/* 用來控制顯示的 class */
+#hint-display.show {
+    display: block; 
+}
+#hint-display code { 
+    background: #2c3e50; padding: 2px 6px; border-radius: 4px; color: #e74c3c; 
+}
+
+
+/* --- 在 css 檔案最下方加入這些圖片綁定 --- */
+
+/* 盤子素材對應 (dish03 ~ dish05) */
+.plate-green { background-image: url('img/dish03.png'); }
+.plate-blue  { background-image: url('img/dish04.png'); }
+.plate-pink  { background-image: url('img/dish05.png'); }
+
+/* 壽司素材對應 (sushi01 ~ sushi07) */
+.sushi-shrimp  { background-image: url('img/sushi01.png'); } /* 蝦壽司 */
+.sushi-maki    { background-image: url('img/sushi02.png'); } /* 綠色花壽司 */
+.sushi-salmon  { background-image: url('img/sushi03.png'); } /* 鮭魚壽司 */
+.sushi-ikura   { background-image: url('img/sushi04.png'); } /* 鮭魚卵軍艦 */
+.sushi-roll    { background-image: url('img/sushi05.png'); } /* 海苔捲 */
+
+.sushi-pink    { background-image: url('img/sushi06.png'); } /* 粉紅花壽司 */
+.sushi-tamago  { background-image: url('img/sushi07.png'); } /* 玉子燒壽司 */
+.sushi-salmonroll  { background-image: url('img/sushi09.png'); } /* 鮭魚捲 */
+.sushi-avocado  { background-image: url('img/sushi12.png'); } /* 酪梨壽司 */
+
+
+/* ==========================================
+   新增：初始動畫畫面 (Start Screen) 樣式
+   ========================================== */
+
+/* 全螢幕覆蓋容器 */
+#start-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #2c3e50; /* 深藍底色 */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* 確保疊在最上面 */
+    font-family: sans-serif;
+    transition: 0.5s ease-out; /* 隱藏時的淡出動畫 */
+}
+
+/* 點擊開始遊戲後，用這個 class 隱藏畫面 */
+#start-screen.hide {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50px); /* 輕微往上飄移 */
+}
+
+#start-content {
+    text-align: center;
+    max-width: 800px;
+}
+
+#start-content h1 { font-size: 3.5rem; margin-bottom: 0.5rem; }
+#start-content p { font-size: 1.2rem; color: #95a5a6; margin-bottom: 3rem; }
+
+/* 用來包裹原本遊戲版面的容器，預設隱藏 */
+#game-layout {
+    display: flex; /* 恢復原本 body 的 flex */
+    height: 100vh;
+}
+.hidden { display: none !important; } /* 用來在遊戲開始前完全隱藏遊戲畫面 */
+
+
+/* 3x2 壽司跳動網格 */
+#bouncing-sushi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3行 */
+    grid-template-rows: repeat(2, 1fr);    /* 2列 */
+    gap: 20px;
+    margin-bottom: 4rem;
+    padding: 20px;
+}
+
+/* 單組壽司與盤子的容器 */
+.pair-container {
+    position: relative;
+    width: 180px;  /* 復用原本 .plate, .sushi 的寬度設定 */
+    height: 130px; /* 復用原本高度設定 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* 圖片踩在底部 */
+}
+
+/* 靜態盤子 (不需動畫) */
+.plate-static {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+}
+
+/* 跳動壽司 (核心動畫屬性) */
+.sushi-bouncing {
+    position: absolute;
+    bottom: 0; /* 起始位置貼著底部 */
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    transform-origin: bottom center; /* 基準點在底部 */
+    z-index: 2;
+
+    /* 應用跳動動畫 (1s duration, 無限循環, ease-in-out 手感更好) */
+    animation: bounce 1s infinite ease-in-out;
+}
+
+/* 定義跳動動畫關鍵幀 */
+@keyframes bounce {
+    0%, 100% {
+        /* 起始與結束位置：坐在盤子上 (復用原本 .sushi 的 scale(0.5) translateY(-20px)) */
+        transform: scale(0.5) translateY(-20px);
+    }
+    50% {
+        /* 跳動中點：坐在盤子上基礎上，再往上升 15px */
+        /* 計算：(-20px + -15px) = -35px */
+        transform: scale(0.5) translateY(-35px);
+    }
+}
+
+/* 👇 為 6 顆壽司設定不同的 animation-delay 達成不規律手感 👇 */
+#bouncing-sushi-grid .pair-container:nth-child(1) .sushi-bouncing { animation-delay: 0.0s; }
+#bouncing-sushi-grid .pair-container:nth-child(2) .sushi-bouncing { animation-delay: 0.2s; }
+#bouncing-sushi-grid .pair-container:nth-child(3) .sushi-bouncing { animation-delay: 0.5s; }
+#bouncing-sushi-grid .pair-container:nth-child(4) .sushi-bouncing { animation-delay: 0.1s; }
+#bouncing-sushi-grid .pair-container:nth-child(5) .sushi-bouncing { animation-delay: 0.4s; }
+#bouncing-sushi-grid .pair-container:nth-child(6) .sushi-bouncing { animation-delay: 0.3s; }
+
+
+/* 開始遊戲按鈕樣式 */
+#start-game-btn {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#start-game-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+}
+
+/* --- 在 style.css 最下方加入新的脈動動畫 Keyframes 定義 --- */
+@keyframes pulseSushi {
+    0%, 100% {
+        /* 基準狀態： scale(0.5) translateY(-20px) */
+        transform: scale(0.5) translateY(-20px);
+    }
+    50% {
+        /* 脈動狀態： 稍微放大約 10% (0.5 -> 0.55) */
+        /* 關鍵！：必須保留 translateY(-20px)，壽司才不會從盤子浮起來 */
+        transform: scale(0.55) translateY(-20px);
+    }
+}
